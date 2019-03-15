@@ -1,28 +1,63 @@
 <template>
-  <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div>
+    <input type="email" v-model="email" @input="isValidRegexEmail" >
+    {{ valid.toString() }}
   </div>
+
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+  import axios from 'axios'
+  import jsonpAdapter from 'axios-jsonp'
+  let CancelToken = axios.CancelToken;
+  let cancel;
+  export default {
+    data(){
+      return{
+        email:null,
+        valid:false
+      }
+    },
+    methods:{
+      isValidRegexEmail(){
+        const regex = /^([a-zA-Z0-9_.-])+@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/
+        this.valid = regex.test(this.email)
+        if (!this.valid) return
+        if (cancel !== undefined){
+          cancel()
+        }
+        setTimeout( this.fetchNeverbounceApi(), 5000);
 
-export default {
-  name: 'app',
-  components: {
-    HelloWorld
+
+      },
+      fetchNeverbounceApi(){
+
+        axios.get('https://api.neverbounce.com/v4/poe/check',{
+          cancelToken: new CancelToken(function executor(c) {
+            // An executor function receives a cancel function as a parameter
+            cancel = c;
+          }),
+          params:{
+              key:'public_f33e84bb50465c18065e6b0ec0ac19ca',
+              email:this.email,
+              // timeout:1
+            },
+            adapter: jsonpAdapter
+          }
+        ).then(resp => {
+          console.log(resp)
+        }).catch( error => {
+          if (axios.isCancel(error)) {
+            return
+          } else {
+            console.log(error)
+          }
+        })
+      }
+    }
+
   }
-}
 </script>
 
 <style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
 </style>
