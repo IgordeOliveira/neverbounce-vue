@@ -10,7 +10,8 @@
   "dependencies": {
     "axios": "^0.18.0",
     "axios-jsonp": "^1.0.2",
-    "vue": "^2.6.6"
+    "v-debounce": "^0.1.2",
+    "vue": "^2.6.9"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.5.0",
